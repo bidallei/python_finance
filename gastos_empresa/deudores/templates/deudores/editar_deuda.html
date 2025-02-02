@@ -1,0 +1,33 @@
+<!-- editar_deuda.html -->
+{% extends 'base_generic.html' %}
+{% load static %}
+
+{% block content %}
+<section id="hero" class="d-flex align-items-center">
+    <div class="container">
+        <div class="row">
+            <div class="col-12 pt-5 d-flex flex-column align-items-center text-center">
+                <h1 class="mt-3 mb-2">Editar Deuda</h1>
+                <h2 class="mt-2 mb-5">Modifica los detalles de la deuda seleccionada.</h2>
+                
+                <form method="POST" class="w-50">
+                    {% csrf_token %}
+                    {{ form.as_p }}
+                    <button type="submit" class="btn btn-outline-success shadow">Guardar cambios</button>
+                    <a href="{% url 'consulta' %}" class="btn btn-outline-danger shadow mt-3">Volver a la lista de deudas</a>
+                </form>
+
+                {% if messages %}
+                    <div class="messages mt-3">
+                        {% for message in messages %}
+                            <div class="alert {% if message.tags %}alert-{{ message.tags }}{% endif %}">
+                                {{ message }}
+                            </div>
+                        {% endfor %}
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}

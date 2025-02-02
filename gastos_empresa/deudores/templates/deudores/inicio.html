@@ -1,0 +1,35 @@
+<!-- inicio.html -->
+
+{% extends 'base_generic.html' %}
+{% load static %}
+
+{% block content %}
+<section id="hero" class="d-flex align-items-center">
+    <div class="container">
+        <div class="row">
+          <div class="col-12 pt-5 d-flex flex-column align-items-center text-center">
+            <h1 class="mt-3 mb-2">Bienvenido</h1>
+            <h2 class="mt-2 mb-5">Gestiona tus gastos, pagos y deudas de manera eficiente.</h2>
+            <div class="d-flex justify-content-center flex-wrap gap-3">
+                <a class="btn btn-outline-success shadow" href="{% url 'registrar_gasto' %}">
+                    <i class="fa-solid fa-right-from-bracket"></i> Gasto
+                </a>
+                <a class="btn btn-outline-success shadow" href="{% url 'registrar_pago' %}">
+                    <i class="fa-solid fa-right-to-bracket"></i> Pago
+                </a>
+                <a class="btn btn-outline-success shadow" href="{% url 'registrar_deuda' %}">
+                    <i class="fa-solid fa-cash-register"></i> Registrar Deuda
+                </a>
+                <a class="btn btn-outline-success shadow" href="{% url 'editar_deuda' deuda_id=1 %}">
+                    <i class="fa-solid fa-pen-to-square"></i> Editar Deuda
+                </a>
+                <a class="btn btn-outline-success shadow" href="{% url 'consulta' %}">
+                    <i class="fa-regular fa-file-excel"></i> Consulta
+                </a>
+            </div>
+        </div>
+        
+        </div>
+    </div>
+</section>
+{% endblock %}

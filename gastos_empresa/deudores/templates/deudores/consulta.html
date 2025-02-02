@@ -1,0 +1,54 @@
+<!-- consulta.html -->
+
+{% extends 'base_generic.html' %}
+{% load static %}
+
+{% block content %}
+<section id="hero" class="d-flex align-items-center">
+    <div class="container">
+        <div class="row">
+            <div class="col-12 pt-5 d-flex flex-column align-items-center text-center">
+                <h1 class="mt-3 mb-2">Consulta de Deudas</h1>
+                <h2 class="mt-2 mb-5">Consulta y gestiona las deudas registradas.</h2>
+
+                <!-- Formulario para generar reporte -->
+                <form method="post" id="consultaForm" class="mb-5">
+                    {% csrf_token %}
+                    <div class="mb-3">
+                        <label for="tipo_consulta" class="form-label">Tipo de Consulta</label>
+                        <select class="form-select" id="tipo_consulta" name="tipo_consulta" required>
+                            <option value="" selected disabled>Seleccione una opción</option>
+                            <option value="individual">Individual</option>
+                            <option value="general">General</option>
+                        </select>
+                    </div>
+                    <div class="mb-3" id="deudorField" style="display: none;">
+                        <label for="deudor" class="form-label">Seleccione un Deudor</label>
+                        <select class="form-select" id="deudor" name="deudor">
+                            {% for deudor in deudores %}
+                            <option value="{{ deudor }}">{{ deudor }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <button type="submit" class="btn btn-primary">Generar Reporte</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</section>
+
+<script>
+    // Mostrar u ocultar el campo de deudor según el tipo de consulta
+    document.getElementById('tipo_consulta').addEventListener('change', function() {
+        const deudorField = document.getElementById('deudorField');
+        if (this.value === 'individual') {
+            deudorField.style.display = 'block';
+        } else {
+            deudorField.style.display = 'none';
+        }
+    });
+</script>
+{% endblock %}
+
+
+
