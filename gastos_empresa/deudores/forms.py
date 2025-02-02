@@ -49,11 +49,17 @@ class DeudaForm(forms.ModelForm):
         return deudor
 
 class EditarDeudaForm(forms.ModelForm):
+    deuda = forms.ModelChoiceField(
+        queryset=Deuda.objects.all(),
+        widget=forms.Select(attrs={'class': 'form-control'}),
+        label="Deuda",
+        empty_label="Seleccione una deuda"
+    )
+
     class Meta:
         model = EdicionDeuda
         fields = ['deuda', 'nueva_deuda', 'concepto']
         widgets = {
-            'deuda': forms.Select(attrs={'class': 'form-control'}),
             'nueva_deuda': forms.NumberInput(attrs={'class': 'form-control'}),
             'concepto': forms.TextInput(attrs={'class': 'form-control'}),
         }
