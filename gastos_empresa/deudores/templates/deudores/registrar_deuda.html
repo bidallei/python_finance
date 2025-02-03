@@ -29,6 +29,31 @@
                         </div>
                     {% endif %}
                     
+                    {% if messages %}
+                        <div class="container">
+                            {% for message in messages %}
+                                <div class="alert {% if message.tags == 'success' %}alert-success{% else %}alert-danger{% endif %} alert-dismissible fade show" role="alert">
+                                    {{ message }}
+                                    <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                                        <span aria-hidden="true">&times;</span>
+                                    </button>
+                                </div>
+                            {% endfor %}
+                        </div>
+
+                        <!-- Script para ocultar mensajes después de 3 segundos -->
+                        <script>
+                            setTimeout(function() {
+                                let alerts = document.querySelectorAll('.alert');
+                                alerts.forEach(alert => {
+                                    alert.classList.remove('show');
+                                    alert.classList.add('fade');
+                                    setTimeout(() => alert.remove(), 500);  // Remueve el elemento después de la animación
+                                });
+                            }, 3000);
+                        </script>
+                    {% endif %}
+
                     <!-- Mostrar el formulario -->
                     {{ form.as_p }}
                     <button type="submit" class="btn btn-outline-success shadow">Guardar</button>

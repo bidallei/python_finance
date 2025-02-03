@@ -6,6 +6,7 @@ from .models import Deuda, Pago, Gasto, Deudor
 from .forms import DeudaForm, EditarDeudaForm, PagoForm, GastoForm
 import pandas as pd
 from django.http import HttpResponse
+from django.utils.timezone import now
 
 def inicio(request):
     return render(request, 'deudores/inicio.html')
@@ -26,7 +27,7 @@ def registrar_deuda(request):
             deuda.save()
 
             messages.success(request, "Deuda registrada correctamente.")
-            return redirect('consulta')
+            return redirect('registrar_deuda')
         else:
             messages.error(request, "Hubo un error al registrar la deuda.")
     else:
