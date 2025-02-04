@@ -15,8 +15,7 @@
 
                     <!-- Campo de búsqueda y selección de deudor -->
                     <div class="mb-3">
-                        <label for="id_deudor" class="form-label">Deudor</label>
-                        <input type="text" id="deudor_search" placeholder="Buscar deudor..." class="form-control mb-2">
+                        <label for="id_deudor" class="form-label">Nombre</label>
                         {{ form.deudor }}
                     </div>
 
@@ -38,10 +37,11 @@
                         {{ form.concepto }}
                     </div>
 
-                    <!-- Botones -->
-                    <button type="submit" class="btn btn-outline-success shadow">Guardar cambios</button>
-                    <a href="{% url 'consulta' %}" class="btn btn-outline-danger shadow mt-3">Volver a la lista de deudas</a>
-                </form>
+                     <!-- Botones centrados -->
+                    <div class="d-flex justify-content-center gap-3 mt-3">
+                        <button type="submit" class="btn btn-outline-success shadow">Guardar</button>
+                        <a href="{% url 'inicio' %}" class="btn btn-outline-danger shadow">Regresar</a>
+                    </div>
 
                 <!-- Mensajes de éxito/error -->
                 {% if messages %}

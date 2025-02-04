@@ -51,10 +51,10 @@ class DeudaForm(forms.ModelForm):
 class EditarDeudaForm(forms.ModelForm):
     class Meta:
         model = EdicionDeuda
-        fields = ['deudor', 'nueva_deuda', 'fecha', 'concepto']
+        fields = ['deudor', 'nueva_deuda', 'fecha_edicion', 'concepto']
         widgets = {
             'deudor': forms.Select(attrs={'class': 'form-control', 'id': 'id_deudor'}),
-            'fecha': forms.DateInput(attrs={'type': 'date'}),
+            'fecha_edicion': forms.DateInput(attrs={'type': 'date', 'class': 'form-control'}),
             'nueva_deuda': forms.NumberInput(attrs={'class': 'form-control'}),
             'concepto': forms.TextInput(attrs={'class': 'form-control'}),
         }

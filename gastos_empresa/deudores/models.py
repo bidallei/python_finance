@@ -1,22 +1,31 @@
 #models.py
 
 from django.db import models
+from django.utils import timezone
+
 
 class Deudor(models.Model):
     nombre = models.CharField(max_length=100, unique=True)
     deuda_actual = models.DecimalField(max_digits=10, decimal_places=2, default=0.0)
 
+    # def actualizar_deuda(self):
+    #     """Recalcula la deuda actual sumando las últimas ediciones de cada deuda."""
+    #     total = self.deuda_set.aggregate(total=models.Sum('ediciones__nueva_deuda'))['total']
+    #     self.deuda_actual = total if total is not None else 0.0
+    #     self.save()
+
     def actualizar_deuda(self):
-        """Recalcula la deuda actual sumando las últimas ediciones de cada deuda."""
-        total = self.deudas.aggregate(total=models.Sum('ediciones__nueva_deuda'))['total']
-        self.deuda_actual = total if total is not None else 0.0
-        self.save()
+        """Recalcula la deuda actual sumando las ediciones de la deuda asociada."""
+        total = self.deuda.monto  # Obtén el monto de la deuda directamente
+        pagos_realizados = self.deuda.pagos.aggregate(total=models.Sum('monto'))['total'] or 0
+        self.deuda_actual = total - pagos_realizados  # Ajusta la deuda actual restando los pagos realizados
+        self.deuda.save()
 
     def __str__(self):
-        return f"{self.nombre} - Deuda: ${self.deuda_actual:,.2f} MXN"
+        return f"{self.nombre}"
 
 class Deuda(models.Model):
-    deudor = models.ForeignKey(Deudor, on_delete=models.CASCADE)
+    deudor = models.OneToOneField(Deudor, on_delete=models.CASCADE) #Era ForeignKey o OneToOneField
     monto = models.DecimalField(max_digits=10, decimal_places=2)  # Monto inicial de la deuda
     fecha = models.DateField()
     concepto = models.CharField(max_length=255, blank=True, null=True)
@@ -27,25 +36,29 @@ class Deuda(models.Model):
         return self.monto - pagos_realizados
 
     def __str__(self):
-        return f"{self.deudor.nombre} - Deuda actual: ${self.deuda_actual():,.2f} MXN"
+        return f"{self.deudor.nombre}" #- Deuda actual: ${self.deuda_actual():,.2f} MXN"
 
 class EdicionDeuda(models.Model):
     deuda = models.ForeignKey(Deuda, on_delete=models.CASCADE, related_name='ediciones')
     fecha = models.DateField()
     deudor = models.ForeignKey(Deudor, on_delete=models.CASCADE)
     nueva_deuda = models.DecimalField(max_digits=10, decimal_places=2)
-    fecha_edicion = models.DateField(auto_now_add=True, editable=True)
+    fecha_edicion = models.DateField(editable=True)
     concepto = models.CharField(max_length=255)
 
     def save(self, *args, **kwargs):
         """Al guardar una edición, actualiza la deuda y el total del deudor."""
+        if not self.fecha_edicion:
+            self.fecha_edicion = timezone.now().date()  # Asigna la fecha actual si no se ha proporcionado
         super().save(*args, **kwargs)  
         self.deuda.monto = self.nueva_deuda  # Actualiza el monto en la deuda original
         self.deuda.save()
         self.deudor.actualizar_deuda()  # Actualiza la deuda total del deudor
 
     def __str__(self):
-        return f"Edición de {self.deuda.deudor.nombre} - ${self.nueva_deuda:,.2f} MXN"
+        return f"Edición de {self.deuda.deudor.nombre}"
+
+from django.utils import timezone
 
 class Pago(models.Model):
     deuda = models.ForeignKey(Deuda, on_delete=models.CASCADE, related_name='pagos')
