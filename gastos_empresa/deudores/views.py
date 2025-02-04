@@ -2,7 +2,7 @@
 
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib import messages
-from .models import Deuda, Pago, Gasto, Deudor
+from .models import Deuda, Pago, Gasto, Deudor, EdicionDeuda
 from .forms import DeudaForm, EditarDeudaForm, PagoForm, GastoForm
 import pandas as pd
 from django.http import HttpResponse
@@ -15,15 +15,13 @@ def registrar_deuda(request):
     if request.method == 'POST':
         form = DeudaForm(request.POST)
         if form.is_valid():
-            nombre_deudor = form.cleaned_data['deudor']
+            deuda = form.save(commit=False)
+            nombre_deudor = form.cleaned_data['deudor']  # Obtiene el nombre del deudor
 
-            deudor, creado = Deudor.objects.get_or_create(nombre=nombre_deudor)
+            # Buscar o crear el deudor en la base de datos
+            deudor, created = Deudor.objects.get_or_create(nombre=nombre_deudor)
 
-            deuda = Deuda(
-                deudor=deudor,
-                monto=form.cleaned_data['monto'],
-                fecha=form.cleaned_data['fecha']
-            )
+            deuda.deudor = deudor  # Asigna la instancia de Deudor
             deuda.save()
 
             messages.success(request, "Deuda registrada correctamente.")
@@ -35,20 +33,37 @@ def registrar_deuda(request):
     
     return render(request, 'deudores/registrar_deuda.html', {'form': form})
 
+
 def editar_deuda(request, deuda_id):
     deuda = get_object_or_404(Deuda, id=deuda_id)
+    
     if request.method == 'POST':
         form = EditarDeudaForm(request.POST)
         if form.is_valid():
-            edicion = form.save(commit=False)
-            edicion.deuda = deuda
-            edicion.save()
+            # Guardar los cambios en la deuda
+            nueva_deuda = form.cleaned_data['nueva_deuda']
+            deuda.monto = nueva_deuda
+            deuda.fecha = form.cleaned_data['fecha']
+            deuda.concepto = form.cleaned_data['concepto']
+            deuda.save()
+            
+            # Actualizar la deuda total del deudor (si es necesario)
+            # Por ejemplo, si el deudor tiene un saldo total de deudas
+            deudor = deuda.deudor
+            # Aquí puedes añadir lógica para actualizar el saldo del deudor si es necesario
+            
             messages.success(request, "Deuda editada correctamente.")
             return redirect('consulta')
         else:
             messages.error(request, "Hubo un error al editar la deuda.")
     else:
-        form = EditarDeudaForm(initial={'deuda': deuda, 'nueva_deuda': deuda.monto})
+        # Mostrar el formulario con los datos actuales de la deuda
+        form = EditarDeudaForm(initial={
+            'nueva_deuda': deuda.monto,
+            'fecha': deuda.fecha,
+            'deudor': deuda.deudor,
+            'concepto': deuda.concepto,
+        })
     
     return render(request, 'deudores/editar_deuda.html', {'form': form, 'deuda': deuda})
 
@@ -111,26 +126,3 @@ def consulta(request):
         return response
     
     return render(request, 'deudores/consulta.html', {'deudores': deudores})
-
-def exportar_general(request):
-    tipo_consulta = request.GET.get('tipo_consulta')
-    
-    if tipo_consulta == 'individual':
-        deudor_id = request.GET.get('deudor')
-        deudas = Deuda.objects.filter(deudor__id=deudor_id)
-        pagos = Pago.objects.filter(deuda__deudor__id=deudor_id)
-        data = list(deudas.values('deudor__nombre', 'monto', 'fecha')) + \
-               list(pagos.values('deuda__deudor__nombre', 'monto', 'fecha'))
-    else:
-        deudas = Deuda.objects.all()
-        pagos = Pago.objects.all()
-        gastos = Gasto.objects.all()
-        data = list(deudas.values('deudor__nombre', 'monto', 'fecha')) + \
-               list(pagos.values('deuda__deudor__nombre', 'monto', 'fecha')) + \
-               list(gastos.values('concepto', 'monto', 'fecha'))
-
-    df = pd.DataFrame(data)
-    response = HttpResponse(content_type='application/ms-excel')
-    response['Content-Disposition'] = 'attachment; filename=consulta.xlsx'
-    df.to_excel(response, index=False)
-    return response

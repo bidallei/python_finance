@@ -12,11 +12,38 @@
                 
                 <form method="POST" class="w-50">
                     {% csrf_token %}
-                    {{ form.as_p }}
+
+                    <!-- Campo de búsqueda y selección de deudor -->
+                    <div class="mb-3">
+                        <label for="id_deudor" class="form-label">Deudor</label>
+                        <input type="text" id="deudor_search" placeholder="Buscar deudor..." class="form-control mb-2">
+                        {{ form.deudor }}
+                    </div>
+
+                    <!-- Campo de nueva deuda -->
+                    <div class="mb-3">
+                        <label for="id_nueva_deuda" class="form-label">Nuevo Monto</label>
+                        {{ form.nueva_deuda }}
+                    </div>
+
+                    <!-- Campo de fecha de edición -->
+                    <div class="mb-3">
+                        <label for="id_fecha_edicion" class="form-label">Fecha de Edición</label>
+                        {{ form.fecha_edicion }}
+                    </div>
+
+                    <!-- Campo de concepto -->
+                    <div class="mb-3">
+                        <label for="id_concepto" class="form-label">Concepto</label>
+                        {{ form.concepto }}
+                    </div>
+
+                    <!-- Botones -->
                     <button type="submit" class="btn btn-outline-success shadow">Guardar cambios</button>
                     <a href="{% url 'consulta' %}" class="btn btn-outline-danger shadow mt-3">Volver a la lista de deudas</a>
                 </form>
 
+                <!-- Mensajes de éxito/error -->
                 {% if messages %}
                     <div class="messages mt-3">
                         {% for message in messages %}
@@ -31,3 +58,19 @@
     </div>
 </section>
 {% endblock %}
+
+<!-- Script para filtrar deudores en el menú desplegable -->
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const deudorSelect = document.getElementById('id_deudor');
+        const deudorInput = document.getElementById('deudor_search');
+
+        deudorInput.addEventListener('input', function() {
+            const searchTerm = deudorInput.value.toLowerCase();
+            Array.from(deudorSelect.options).forEach(option => {
+                const optionText = option.text.toLowerCase();
+                option.style.display = optionText.includes(searchTerm) ? 'block' : 'none';
+            });
+        });
+    });
+</script>
